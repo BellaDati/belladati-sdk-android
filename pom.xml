@@ -1,7 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.belladati</groupId>
 	<artifactId>sdk-android</artifactId>
+	<version>0.9.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>BellaDati SDK for Android</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -42,21 +45,49 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<show>package</show>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-	<parent>
-		<groupId>com.belladati</groupId>
-		<artifactId>sdk-root</artifactId>
-		<version>0.9.1</version>
-		<relativePath>../belladati-sdk-main/root</relativePath>
-	</parent>
-	<repositories>
-		<repository>
-			<id>project.local</id>
-			<name>project</name>
-			<url>file:${project.basedir}/repo</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.testng</groupId>
@@ -84,6 +115,7 @@
 	  		<artifactId>httpclient</artifactId>
 	  		<classifier>tests</classifier>
 	  		<version>4.3.1</version>
+			<scope>test</scope>
 	  	</dependency>
 	  	<dependency>
 	  		<groupId>org.apache.httpcomponents</groupId>
@@ -96,7 +128,6 @@
 			<version>4.3.0</version>
 		</dependency>
 	</dependencies>
-</project>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

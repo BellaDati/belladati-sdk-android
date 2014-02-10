@@ -6,6 +6,31 @@
 	<version>0.9.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>BellaDati SDK for Android</name>
+	<url>http://www.belladati.com</url>
+	<description>The BellaDati SDK allows accessing a BellaDati server from 3rd-party applications using Java. This project contains the implementation for Android.</description>
+	<scm>
+		<url>git@github.com:BellaDati/belladati-sdk-android.git</url>
+		<connection>scm:git:git@github.com:BellaDati/belladati-sdk-android.git</connection>
+		<developerConnection>scm:git:git@github.com:BellaDati/belladati-sdk-android.git</developerConnection>
+	</scm>
+	<developers>
+		<developer>
+			<id>thrar</id>
+			<name>Chris Hennigfeld</name>
+			<email>christian.hennigfeld@belladati.com</email>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
@@ -100,11 +125,6 @@
 			<artifactId>signpost-core</artifactId>
 			<version>1.2.1.2</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.3.1</version>
-		</dependency>
 	  	<dependency>
 	  		<groupId>com.belladati</groupId>
 	  		<artifactId>sdk-api</artifactId>
@@ -121,6 +141,7 @@
 	  		<groupId>org.apache.httpcomponents</groupId>
 	  		<artifactId>httpclient</artifactId>
 	  		<version>4.3.1</version>
+			<scope>test</scope>
 	  	</dependency>
 		<dependency>
 			<groupId>com.belladati</groupId>
@@ -134,6 +155,7 @@
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
 				<version>4.3</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

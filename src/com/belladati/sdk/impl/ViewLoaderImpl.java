@@ -6,8 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.http.client.utils.URIBuilder;
-
+import com.belladati.httpclientandroidlib.client.utils.URIBuilder;
 import com.belladati.sdk.exception.InternalConfigurationException;
 import com.belladati.sdk.filter.Filter;
 import com.belladati.sdk.impl.TableViewImpl.TableImpl;

@@ -4,8 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.http.client.utils.URIBuilder;
-
+import com.belladati.httpclientandroidlib.client.utils.URIBuilder;
 import com.belladati.sdk.BellaDatiService;
 import com.belladati.sdk.auth.OAuthRequest;
 

@@ -79,7 +79,7 @@ class TableViewImpl extends ViewImpl implements TableView {
 				throw new IllegalArgumentException("First row must be > 0");
 			}
 			if (endRow > getRowCount()) {
-				throw new IllegalArgumentException("Last row must be < row count");
+				throw new IllegalArgumentException("Last row must be <= row count");
 			}
 			if (startRow > endRow) {
 				throw new IllegalArgumentException("First row must be <= last row");
@@ -101,7 +101,7 @@ class TableViewImpl extends ViewImpl implements TableView {
 				throw new IllegalArgumentException("First column must be > 0");
 			}
 			if (endColumn > getColumnCount()) {
-				throw new IllegalArgumentException("Last column must be < column count");
+				throw new IllegalArgumentException("Last column must be <= column count");
 			}
 			if (startColumn > endColumn) {
 				throw new IllegalArgumentException("First column must be <= last column");
@@ -123,7 +123,7 @@ class TableViewImpl extends ViewImpl implements TableView {
 				throw new IllegalArgumentException("First row must be > 0");
 			}
 			if (endRow > getRowCount()) {
-				throw new IllegalArgumentException("Last row must be < row count");
+				throw new IllegalArgumentException("Last row must be <= row count");
 			}
 			if (startRow > endRow) {
 				throw new IllegalArgumentException("First row must be <= last row");
@@ -131,8 +131,8 @@ class TableViewImpl extends ViewImpl implements TableView {
 			if (startColumn < 0) {
 				throw new IllegalArgumentException("First column must be > 0");
 			}
-			if (endColumn > getRowCount()) {
-				throw new IllegalArgumentException("Last column must be < column count");
+			if (endColumn > getColumnCount()) {
+				throw new IllegalArgumentException("Last column must be <= column count");
 			}
 			if (startColumn > endColumn) {
 				throw new IllegalArgumentException("First column must be <= last column");

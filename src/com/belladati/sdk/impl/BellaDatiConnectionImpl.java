@@ -1,13 +1,20 @@
 package com.belladati.sdk.impl;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+
+import oauth.signpost.OAuth;
+import oauth.signpost.http.HttpParameters;
 
 import com.belladati.httpclientandroidlib.NameValuePair;
 import com.belladati.httpclientandroidlib.message.BasicNameValuePair;
 import com.belladati.sdk.BellaDatiConnection;
 import com.belladati.sdk.BellaDatiService;
 import com.belladati.sdk.auth.OAuthRequest;
+import com.belladati.sdk.exception.ConnectionException;
+import com.belladati.sdk.exception.auth.AuthorizationException;
 
 class BellaDatiConnectionImpl implements BellaDatiConnection {
 
@@ -22,8 +29,25 @@ class BellaDatiConnectionImpl implements BellaDatiConnection {
 
 	@Override
 	public OAuthRequest oAuth(String consumerKey, String consumerSecret) {
+		return oAuth(consumerKey, consumerSecret, null);
+	}
+
+	@Override
+	public OAuthRequest oAuth(String consumerKey, String consumerSecret, String redirectUrl) throws ConnectionException,
+		AuthorizationException {
+		HttpParameters params = new HttpParameters();
+		if (redirectUrl != null) {
+			// check if the redirect URL is valid
+			try {
+				new URL(redirectUrl);
+				params.put(OAuth.OAUTH_CALLBACK, OAuth.percentEncode(redirectUrl));
+			} catch (MalformedURLException e) {
+				throw new IllegalArgumentException("Invalid redirect URL", e);
+			}
+		}
 		TokenHolder tokenHolder = new TokenHolder(consumerKey, consumerSecret);
-		client.postToken("oauth/requestToken", tokenHolder);
+
+		client.postToken("oauth/requestToken", tokenHolder, params);
 		return new OAuthRequestImpl(client, tokenHolder);
 	}
 

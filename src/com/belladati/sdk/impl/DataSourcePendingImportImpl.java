@@ -4,8 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 
-import org.apache.http.message.BasicNameValuePair;
-
+import com.belladati.httpclientandroidlib.message.BasicNameValuePair;
 import com.belladati.sdk.dataset.data.OverwritePolicy;
 import com.belladati.sdk.dataset.source.DataSourcePendingImport;
 import com.belladati.sdk.dataset.source.ImportInterval;

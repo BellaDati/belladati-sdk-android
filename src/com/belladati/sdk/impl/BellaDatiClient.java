@@ -19,19 +19,20 @@ import oauth.signpost.exception.OAuthException;
 import oauth.signpost.http.HttpParameters;
 
 import com.belladati.httpclientandroidlib.HttpEntity;
-import com.belladati.httpclientandroidlib.HttpResponse;
 import com.belladati.httpclientandroidlib.NameValuePair;
-import com.belladati.httpclientandroidlib.client.HttpClient;
 import com.belladati.httpclientandroidlib.client.config.RequestConfig;
 import com.belladati.httpclientandroidlib.client.entity.UrlEncodedFormEntity;
+import com.belladati.httpclientandroidlib.client.methods.CloseableHttpResponse;
 import com.belladati.httpclientandroidlib.client.methods.HttpGet;
 import com.belladati.httpclientandroidlib.client.methods.HttpPost;
 import com.belladati.httpclientandroidlib.client.methods.HttpRequestBase;
 import com.belladati.httpclientandroidlib.conn.ssl.SSLContexts;
 import com.belladati.httpclientandroidlib.conn.ssl.TrustSelfSignedStrategy;
 import com.belladati.httpclientandroidlib.entity.StringEntity;
+import com.belladati.httpclientandroidlib.impl.client.CloseableHttpClient;
 import com.belladati.httpclientandroidlib.impl.client.cache.CacheConfig;
 import com.belladati.httpclientandroidlib.impl.client.cache.CachingHttpClientBuilder;
+import com.belladati.httpclientandroidlib.impl.conn.PoolingHttpClientConnectionManager;
 import com.belladati.sdk.exception.BellaDatiRuntimeException;
 import com.belladati.sdk.exception.ConnectionException;
 import com.belladati.sdk.exception.InternalConfigurationException;
@@ -53,7 +54,7 @@ class BellaDatiClient implements Serializable {
 	private final String baseUrl;
 	private final boolean trustSelfSigned;
 
-	private final transient HttpClient client;
+	private final transient CloseableHttpClient client;
 
 	BellaDatiClient(String baseUrl, boolean trustSelfSigned) {
 		this.baseUrl = baseUrl.endsWith("/") ? baseUrl : (baseUrl + "/");
@@ -68,7 +69,7 @@ class BellaDatiClient implements Serializable {
 	 *            self-signed certificates
 	 * @return a new client instance
 	 */
-	private HttpClient buildClient(boolean trustSelfSigned) {
+	private CloseableHttpClient buildClient(boolean trustSelfSigned) {
 		try {
 			// if required, define custom SSL context allowing self-signed certs
 			SSLContext sslContext = !trustSelfSigned ? SSLContexts.createSystemDefault() : SSLContexts.custom()
@@ -86,9 +87,16 @@ class BellaDatiClient implements Serializable {
 			CacheConfig cacheConfig = CacheConfig.copy(CacheConfig.DEFAULT).setSharedCache(false).setMaxCacheEntries(1000)
 				.setMaxObjectSize(2 * 1024 * 1024).build();
 
+			// configure connection pooling
+			PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+			int connectionLimit = readFromProperty("bdMaxConnections", 40);
+			// there's only one server to connect to, so max per route matters
+			connManager.setMaxTotal(connectionLimit);
+			connManager.setDefaultMaxPerRoute(connectionLimit);
+
 			// create the HTTP client
 			return CachingHttpClientBuilder.create().setCacheConfig(cacheConfig).setSslcontext(sslContext)
-				.setDefaultRequestConfig(requestConfig).build();
+				.setDefaultRequestConfig(requestConfig).setConnectionManager(connManager).build();
 		} catch (GeneralSecurityException e) {
 			throw new InternalConfigurationException("Failed to set up SSL context", e);
 		}
@@ -187,11 +195,12 @@ class BellaDatiClient implements Serializable {
 	}
 
 	private byte[] doRequest(HttpRequestBase request, TokenHolder tokenHolder, HttpParameters oauthParams) {
+		CloseableHttpResponse response = null;
 		try {
 			OAuthConsumer consumer = tokenHolder.createConsumer();
 			consumer.setAdditionalParameters(oauthParams);
 			consumer.sign(request);
-			HttpResponse response = client.execute(request);
+			response = client.execute(request);
 			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity entity = response.getEntity();
 			byte[] content = entity != null ? readBytes(entity.getContent()) : new byte[0];
@@ -217,6 +226,13 @@ class BellaDatiClient implements Serializable {
 		} catch (IOException e) {
 			throw new ConnectionException("Failed to connect to BellaDati", e);
 		} finally {
+			try {
+				if (response != null) {
+					response.close();
+				}
+			} catch (IOException e) {
+				throw new ConnectionException("Failed to connect to BellaDati", e);
+			}
 			request.releaseConnection();
 		}
 	}

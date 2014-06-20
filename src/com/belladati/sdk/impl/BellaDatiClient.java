@@ -26,6 +26,10 @@ import com.belladati.httpclientandroidlib.client.methods.CloseableHttpResponse;
 import com.belladati.httpclientandroidlib.client.methods.HttpGet;
 import com.belladati.httpclientandroidlib.client.methods.HttpPost;
 import com.belladati.httpclientandroidlib.client.methods.HttpRequestBase;
+import com.belladati.httpclientandroidlib.config.RegistryBuilder;
+import com.belladati.httpclientandroidlib.conn.socket.ConnectionSocketFactory;
+import com.belladati.httpclientandroidlib.conn.socket.PlainConnectionSocketFactory;
+import com.belladati.httpclientandroidlib.conn.ssl.SSLConnectionSocketFactory;
 import com.belladati.httpclientandroidlib.conn.ssl.SSLContexts;
 import com.belladati.httpclientandroidlib.conn.ssl.TrustSelfSignedStrategy;
 import com.belladati.httpclientandroidlib.entity.StringEntity;
@@ -88,15 +92,17 @@ class BellaDatiClient implements Serializable {
 				.setMaxObjectSize(2 * 1024 * 1024).build();
 
 			// configure connection pooling
-			PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+			PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(RegistryBuilder
+				.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory())
+				.register("https", new SSLConnectionSocketFactory(sslContext)).build());
 			int connectionLimit = readFromProperty("bdMaxConnections", 40);
 			// there's only one server to connect to, so max per route matters
 			connManager.setMaxTotal(connectionLimit);
 			connManager.setDefaultMaxPerRoute(connectionLimit);
 
 			// create the HTTP client
-			return CachingHttpClientBuilder.create().setCacheConfig(cacheConfig).setSslcontext(sslContext)
-				.setDefaultRequestConfig(requestConfig).setConnectionManager(connManager).build();
+			return CachingHttpClientBuilder.create().setCacheConfig(cacheConfig).setDefaultRequestConfig(requestConfig)
+				.setConnectionManager(connManager).build();
 		} catch (GeneralSecurityException e) {
 			throw new InternalConfigurationException("Failed to set up SSL context", e);
 		}

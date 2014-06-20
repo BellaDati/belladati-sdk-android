@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import com.belladati.httpclientandroidlib.client.utils.URIBuilder;
 import com.belladati.sdk.exception.InternalConfigurationException;
@@ -26,6 +27,8 @@ public class ViewLoaderImpl implements ViewLoader {
 
 	private Interval<DateUnit> dateInterval;
 	private Interval<TimeUnit> timeInterval;
+
+	private Locale locale;
 
 	public ViewLoaderImpl(BellaDatiServiceImpl service, String viewId, ViewType viewType) {
 		this.service = service;
@@ -67,13 +70,20 @@ public class ViewLoaderImpl implements ViewLoader {
 	}
 
 	@Override
+	public ViewLoader setLocale(Locale locale) {
+		this.locale = locale;
+		return this;
+	}
+
+	@Override
 	public Object loadContent() {
 		try {
 			URIBuilder builder = new URIBuilder("api/reports/views/" + viewId + "/" + viewType.getUri());
 			JsonNode json = service.loadJson(service
-				.appendDateTime(service.appendFilter(builder, filters), dateInterval, timeInterval).build().toString());
+				.appendLocale(service.appendDateTime(service.appendFilter(builder, filters), dateInterval, timeInterval), locale)
+				.build().toString());
 			if (viewType == ViewType.TABLE) {
-				return new TableImpl(service, viewId, json, filters);
+				return new TableImpl(service, viewId, json, filters).setLocale(locale);
 			}
 			return json;
 		} catch (URISyntaxException e) {

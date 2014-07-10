@@ -286,7 +286,7 @@ class BellaDatiServiceImpl implements BellaDatiService {
 	 */
 	URIBuilder appendLocale(URIBuilder builder, Locale locale) {
 		if (locale != null) {
-			builder.addParameter("language", locale.getLanguage());
+			builder.addParameter("lang", locale.getLanguage());
 		}
 		return builder;
 	}

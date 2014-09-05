@@ -19,7 +19,6 @@ import android.graphics.Bitmap;
 import com.belladati.sdk.dataset.DataSetInfo;
 import com.belladati.sdk.report.Report;
 import com.belladati.sdk.report.ReportInfo;
-import com.belladati.sdk.test.TestRequestHandler;
 import com.belladati.sdk.util.PaginatedList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -202,12 +201,8 @@ public class ReportsTest extends SDKTest {
 
 	/** Can load a report's thumbnail from service. */
 	public void loadThumbnailFromService() throws IOException {
-		server.register(reportsUri + "/" + id + "/thumbnail", new TestRequestHandler() {
-			@Override
-			protected void handle(HttpHolder holder) throws IOException {
-				holder.response.setEntity(new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
-			}
-		});
+		server.register(reportsUri + "/" + id + "/thumbnail",
+			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
 
 		Bitmap thumbnail = (Bitmap) service.loadReportThumbnail(id);
 
@@ -221,14 +216,25 @@ public class ReportsTest extends SDKTest {
 	public void loadThumbnailFromReportInfo() throws IOException {
 		ReportInfo reportInfo = new ReportInfoImpl(service, builder.buildReportNode(id, name, description, owner, lastChange));
 
-		server.register(reportsUri + "/" + id + "/thumbnail", new TestRequestHandler() {
-			@Override
-			protected void handle(HttpHolder holder) throws IOException {
-				holder.response.setEntity(new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
-			}
-		});
+		server.register(reportsUri + "/" + id + "/thumbnail",
+			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
 
 		Bitmap thumbnail = (Bitmap) reportInfo.loadThumbnail();
+
+		server.assertRequestUris(reportsUri + "/" + id + "/thumbnail");
+
+		assertEquals(thumbnail.getWidth(), 56);
+		assertEquals(thumbnail.getHeight(), 46);
+	}
+
+	/** Can load a report's thumbnail from the report. */
+	public void loadThumbnailFromReport() throws IOException {
+		Report report = new ReportImpl(service, builder.buildReportNode(id, name, description, owner, lastChange));
+
+		server.register(reportsUri + "/" + id + "/thumbnail",
+			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
+
+		BufferedImage thumbnail = (BufferedImage) report.loadThumbnail();
 
 		server.assertRequestUris(reportsUri + "/" + id + "/thumbnail");
 

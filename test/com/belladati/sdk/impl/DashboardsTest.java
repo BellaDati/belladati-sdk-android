@@ -17,7 +17,6 @@ import android.graphics.Bitmap;
 
 import com.belladati.sdk.dashboard.Dashboard;
 import com.belladati.sdk.dashboard.DashboardInfo;
-import com.belladati.sdk.test.TestRequestHandler;
 import com.belladati.sdk.util.PaginatedList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -153,12 +152,8 @@ public class DashboardsTest extends SDKTest {
 
 	/** Can load a dashboard thumbnail from service. */
 	public void loadThumbnailFromService() throws IOException {
-		server.register(dashboardsUri + "/" + id + "/thumbnail", new TestRequestHandler() {
-			@Override
-			protected void handle(HttpHolder holder) throws IOException {
-				holder.response.setEntity(new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
-			}
-		});
+		server.register(dashboardsUri + "/" + id + "/thumbnail",
+			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
 
 		Bitmap thumbnail = (Bitmap) service.loadDashboardThumbnail(id);
 
@@ -172,14 +167,25 @@ public class DashboardsTest extends SDKTest {
 	public void loadThumbnailFromDashboardInfo() throws IOException {
 		DashboardInfo dashboardInfo = new DashboardInfoImpl(service, builder.buildDashboardNode(id, name, lastChange));
 
-		server.register(dashboardsUri + "/" + id + "/thumbnail", new TestRequestHandler() {
-			@Override
-			protected void handle(HttpHolder holder) throws IOException {
-				holder.response.setEntity(new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
-			}
-		});
+		server.register(dashboardsUri + "/" + id + "/thumbnail",
+			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
 
 		Bitmap thumbnail = (Bitmap) dashboardInfo.loadThumbnail();
+
+		server.assertRequestUris(dashboardsUri + "/" + id + "/thumbnail");
+
+		assertEquals(thumbnail.getWidth(), 56);
+		assertEquals(thumbnail.getHeight(), 46);
+	}
+
+	/** Can load a dashboard thumbnail from a dashboard. */
+	public void loadThumbnailFromDashboard() throws IOException {
+		Dashboard dashboard = new DashboardImpl(service, builder.buildDashboardNode(id, name, lastChange));
+
+		server.register(dashboardsUri + "/" + id + "/thumbnail",
+			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
+
+		BufferedImage thumbnail = (BufferedImage) dashboard.loadThumbnail();
 
 		server.assertRequestUris(dashboardsUri + "/" + id + "/thumbnail");
 

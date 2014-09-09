@@ -32,6 +32,7 @@ import com.belladati.httpclientandroidlib.conn.socket.PlainConnectionSocketFacto
 import com.belladati.httpclientandroidlib.conn.ssl.SSLConnectionSocketFactory;
 import com.belladati.httpclientandroidlib.conn.ssl.SSLContexts;
 import com.belladati.httpclientandroidlib.conn.ssl.TrustSelfSignedStrategy;
+import com.belladati.httpclientandroidlib.entity.ByteArrayEntity;
 import com.belladati.httpclientandroidlib.entity.StringEntity;
 import com.belladati.httpclientandroidlib.impl.client.CloseableHttpClient;
 import com.belladati.httpclientandroidlib.impl.client.cache.CacheConfig;
@@ -150,6 +151,14 @@ class BellaDatiClient implements Serializable {
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalArgumentException("Invalid URL encoding", e);
 		}
+		return doRequest(post, tokenHolder);
+	}
+
+	public byte[] postData(String relativeUrl, TokenHolder tokenHolder, byte[] content) {
+		HttpPost post = new HttpPost(baseUrl + relativeUrl);
+		ByteArrayEntity entity = new ByteArrayEntity(content);
+		entity.setContentType("application/octet-stream");
+		post.setEntity(entity);
 		return doRequest(post, tokenHolder);
 	}
 

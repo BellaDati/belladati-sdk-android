@@ -1,6 +1,7 @@
 package com.belladati.sdk.export;
 
-import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,7 +12,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.imageio.ImageIO;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 
 import com.belladati.sdk.dashboard.Dashboard;
 import com.belladati.sdk.dashboard.DashboardInfo;
@@ -25,12 +28,12 @@ class StoredDashboardInfo implements DashboardInfo, Serializable {
 	private final String id;
 	private final String name;
 	private final Date lastChange;
-	private final transient BufferedImage thumbnail;
+	private final transient Bitmap thumbnail;
 
 	private final transient Dashboard dashboard = new StoredDashboard();
 	private final List<Dashlet> dashlets = new ArrayList<Dashlet>();
 
-	StoredDashboardInfo(String id, String name, Date lastChange, BufferedImage thumbnail, List<Dashlet> dashlets) {
+	StoredDashboardInfo(String id, String name, Date lastChange, Bitmap thumbnail, List<Dashlet> dashlets) {
 		this.id = id;
 		this.name = name;
 		this.lastChange = lastChange;
@@ -105,7 +108,8 @@ class StoredDashboardInfo implements DashboardInfo, Serializable {
 				// if we have a stored thumbnail image, load it
 				Field thumbnail = getClass().getDeclaredField("thumbnail");
 				thumbnail.setAccessible(true);
-				thumbnail.set(this, ImageIO.read(in));
+				byte[] bytes = (byte[]) in.readObject();
+				thumbnail.set(this, BitmapFactory.decodeStream(new ByteArrayInputStream(bytes)));
 			}
 		} catch (NoSuchFieldException e) {
 			throw new InternalConfigurationException("Failed to set fields", e);
@@ -125,7 +129,9 @@ class StoredDashboardInfo implements DashboardInfo, Serializable {
 		out.writeBoolean(thumbnail != null);
 		if (thumbnail != null) {
 			// then write the thumbnail itself, if one exists
-			ImageIO.write(thumbnail, "png", out);
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			thumbnail.compress(CompressFormat.PNG, 100, bytes);
+			out.writeObject(bytes.toByteArray());
 		}
 	}
 }

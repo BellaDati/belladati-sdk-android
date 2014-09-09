@@ -234,7 +234,7 @@ public class ReportsTest extends SDKTest {
 		server.register(reportsUri + "/" + id + "/thumbnail",
 			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
 
-		BufferedImage thumbnail = (BufferedImage) report.loadThumbnail();
+		Bitmap thumbnail = (Bitmap) report.loadThumbnail();
 
 		server.assertRequestUris(reportsUri + "/" + id + "/thumbnail");
 

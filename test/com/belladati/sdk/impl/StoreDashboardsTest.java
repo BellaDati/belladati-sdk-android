@@ -4,7 +4,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
@@ -13,6 +12,8 @@ import java.util.TimeZone;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.testng.annotations.Test;
+
+import android.graphics.Bitmap;
 
 import com.belladati.sdk.dashboard.Dashboard;
 import com.belladati.sdk.dashboard.DashboardInfo;
@@ -112,9 +113,9 @@ public class StoreDashboardsTest extends SDKTest {
 		expectedChange.set(Calendar.MILLISECOND, 0);
 		assertEquals(stored.getLastChange(), expectedChange.getTime());
 
-		BufferedImage thumbnail;
+		Bitmap thumbnail;
 		if (hasThumbnail) {
-			thumbnail = (BufferedImage) stored.loadThumbnail();
+			thumbnail = (Bitmap) stored.loadThumbnail();
 			assertEquals(thumbnail.getWidth(), 56);
 			assertEquals(thumbnail.getHeight(), 46);
 		} else {
@@ -126,7 +127,7 @@ public class StoreDashboardsTest extends SDKTest {
 		assertEquals(stored.loadDetails().getLastChange(), expectedChange.getTime());
 
 		if (hasThumbnail) {
-			thumbnail = (BufferedImage) stored.loadDetails().loadThumbnail();
+			thumbnail = (Bitmap) stored.loadDetails().loadThumbnail();
 			assertEquals(thumbnail.getWidth(), 56);
 			assertEquals(thumbnail.getHeight(), 46);
 		} else {

@@ -1,11 +1,12 @@
 package com.belladati.sdk.export;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import android.graphics.Bitmap;
 
 import com.belladati.sdk.dashboard.Dashboard;
 import com.belladati.sdk.dashboard.DashboardInfo;
@@ -161,9 +162,9 @@ public class PageStorage {
 	 * @param report report to read from
 	 * @return the report's thumbnail image
 	 */
-	protected BufferedImage readThumbnail(Report report) {
+	protected Bitmap readThumbnail(Report report) {
 		try {
-			return (BufferedImage) report.loadThumbnail();
+			return (Bitmap) report.loadThumbnail();
 		} catch (IOException e) {
 			return null;
 		}
@@ -199,9 +200,9 @@ public class PageStorage {
 	 * @param dashboard dashboard to read from
 	 * @return the dashboard's thumbnail image
 	 */
-	protected BufferedImage readThumbnail(Dashboard dashboard) {
+	protected Bitmap readThumbnail(Dashboard dashboard) {
 		try {
-			return (BufferedImage) dashboard.loadThumbnail();
+			return (Bitmap) dashboard.loadThumbnail();
 		} catch (IOException e) {
 			return null;
 		}

@@ -185,7 +185,7 @@ public class DashboardsTest extends SDKTest {
 		server.register(dashboardsUri + "/" + id + "/thumbnail",
 			new InputStreamEntity(getClass().getResourceAsStream("belladati.png")));
 
-		BufferedImage thumbnail = (BufferedImage) dashboard.loadThumbnail();
+		Bitmap thumbnail = (Bitmap) dashboard.loadThumbnail();
 
 		server.assertRequestUris(dashboardsUri + "/" + id + "/thumbnail");
 

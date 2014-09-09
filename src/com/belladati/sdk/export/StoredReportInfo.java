@@ -1,6 +1,7 @@
 package com.belladati.sdk.export;
 
-import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,7 +13,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import javax.imageio.ImageIO;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 
 import com.belladati.sdk.dataset.Attribute;
 import com.belladati.sdk.dataset.DataSetInfo;
@@ -31,14 +34,14 @@ class StoredReportInfo extends StoredLocalizable implements ReportInfo, Serializ
 	private final String description;
 	private final String ownerName;
 	private final Date lastChange;
-	private final transient BufferedImage thumbnail;
+	private final transient Bitmap thumbnail;
 
 	private final transient PaginatedList<Comment> comments = new EmptyPaginatedList<Comment>();
 	private final transient Report report = new StoredReport();
 	private final List<View> views = new ArrayList<View>();
 
 	StoredReportInfo(String id, String name, LocalizationImpl localization, String description, String ownerName,
-		Date lastChange, BufferedImage thumbnail, List<View> views) {
+		Date lastChange, Bitmap thumbnail, List<View> views) {
 		super(id, name, localization);
 		this.description = description;
 		this.ownerName = ownerName;
@@ -166,7 +169,8 @@ class StoredReportInfo extends StoredLocalizable implements ReportInfo, Serializ
 				// if we have a stored thumbnail image, load it
 				Field thumbnail = getClass().getDeclaredField("thumbnail");
 				thumbnail.setAccessible(true);
-				thumbnail.set(this, ImageIO.read(in));
+				byte[] bytes = (byte[]) in.readObject();
+				thumbnail.set(this, BitmapFactory.decodeStream(new ByteArrayInputStream(bytes)));
 			}
 		} catch (NoSuchFieldException e) {
 			throw new InternalConfigurationException("Failed to set fields", e);
@@ -186,7 +190,9 @@ class StoredReportInfo extends StoredLocalizable implements ReportInfo, Serializ
 		out.writeBoolean(thumbnail != null);
 		if (thumbnail != null) {
 			// then write the thumbnail itself, if one exists
-			ImageIO.write(thumbnail, "png", out);
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			thumbnail.compress(CompressFormat.PNG, 100, bytes);
+			out.writeObject(bytes.toByteArray());
 		}
 	}
 }
